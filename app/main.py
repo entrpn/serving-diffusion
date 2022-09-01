@@ -86,7 +86,7 @@ async def predict(request: Request):
     data = [batch_size * [prompt]]
 
     sample_path = os.path.join(outpath, "samples")
-    os.makedirs(sample_path, exists_ok=True)
+    os.makedirs(sample_path, exist_ok=True)
     base_count = len(os.listdir(sample_path))
     grid_count = len(os.listdir(outpath)) -1
 
@@ -130,8 +130,10 @@ async def predict(request: Request):
                     grid_count += 1
 
                 toc = time.time()
-                        
 
-    retval = base64.b64encode(t)
+    retval = ""          
+    grid_count -=1
+    with open(os.path.join(outpath, f'grid-{grid_count:04}.png'), "rb") as image_file:
+        retval = base64.b64encode(image_file.read())
     
     return {"predictions" : [retval]}

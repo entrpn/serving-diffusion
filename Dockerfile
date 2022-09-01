@@ -54,7 +54,10 @@ RUN . /root/.bashrc && \
 
 COPY app .
 COPY entrypoint.sh .
+COPY load_weights.sh .
 RUN ls -ll
+
+RUN ["./load_weights.sh"]
 
 #SHELL ["/bin/bash","-c"]
 EXPOSE 8080
