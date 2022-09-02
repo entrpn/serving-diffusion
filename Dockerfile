@@ -52,15 +52,15 @@ RUN . /root/.bashrc && \
     conda activate ldm && \
     pip install uvicorn fastapi
 
-COPY app .
-COPY entrypoint.sh .
+COPY app/load_weights.py .
 COPY load_weights.sh .
-RUN ls -ll
-
 RUN ["./load_weights.sh"]
 
+COPY app .
+COPY entrypoint.sh .
+
 #SHELL ["/bin/bash","-c"]
-EXPOSE 8080
+EXPOSE 80
 ENTRYPOINT ["./entrypoint.sh"]
 
 # ENTRYPOINT ["conda", "run", "-n", "ldm", \
