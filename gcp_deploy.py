@@ -82,9 +82,9 @@ def main():
     serving_container_ports=[8080],
     serving_container_predict_route="/predict"
     )
-    
+    #NVIDIA_TESLA_V100
     model = deploy_model_with_dedicated_resources_sample(model,
-                                                        "n1-standard-8",
+                                                        "n1-standard-4",
                                                         traffic_percentage=100,
                                                         accelerator_type='NVIDIA_TESLA_T4',
                                                         accelerator_count=1)

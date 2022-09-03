@@ -1,6 +1,7 @@
 
 from fastapi import FastAPI, Request
 
+import uuid
 import base64
 import json
 import numpy as np
@@ -61,9 +62,10 @@ outdir = "/outputs/txt2img-samples"
 os.makedirs(outdir, exist_ok=True)
 outpath = outdir
 
-n_samples = 3
-batch_size = 3
-n_rows = 3
+n_samples = 1
+batch_size = n_samples
+n_rows = batch_size
+n_iter = 4
 
 app = FastAPI()
 
@@ -80,20 +82,27 @@ async def predict(request: Request):
     {
         "instances" : [
             {"prompt" : "a dog wearing a dress"}
-        ]
+        ],
+        "parameters" : {
+            "ddim_steps" : 50,
+            "scale" : 7.5
+        }
     }
     """
     body = await request.json()
 
     instances = body["instances"]
+    config =  body["parameters"]
 
     prompt = instances[0]["prompt"]
     data = [batch_size * [prompt]]
 
     sample_path = os.path.join(outpath, "samples")
     os.makedirs(sample_path, exist_ok=True)
-    base_count = len(os.listdir(sample_path))
+    base_count = 0
     grid_count = len(os.listdir(outpath)) -1
+
+    unique_id = str(uuid.uuid4())[:8]
 
     start_code = torch.randn([3, 4, 512 // 8, 512 // 8], device=device)
     precision_scope = autocast
@@ -102,19 +111,19 @@ async def predict(request: Request):
         with precision_scope("cuda"):
             with model.ema_scope():
                 tic = time.time()
-                for n in trange(2, desc="Sampling"):
+                for n in trange(n_iter, desc="Sampling"):
                     for prompts in tqdm(data, desc="data"):
                         uc = model.get_learned_conditioning(batch_size * [""])
                         if isinstance(prompts,tuple):
                             prompts = list(prompts)
                         c = model.get_learned_conditioning(prompts)
                         shape = [4,512//8,512//8]
-                        samples_ddim, _ = sampler.sample(S=20,
+                        samples_ddim, _ = sampler.sample(S=config.get('ddmin_steps',30),
                                                         conditioning=c,
                                                         batch_size=n_samples,
                                                         shape=shape,
                                                         verbose=False,
-                                                        unconditional_guidance_scale=7.5,
+                                                        unconditional_guidance_scale=config.get('scale',7.5),
                                                         unconditional_conditioning=uc,
                                                         eta=0,
                                                         x_t=start_code
@@ -122,23 +131,34 @@ async def predict(request: Request):
                         x_samples_ddim = model.decode_first_stage(samples_ddim)
                         x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
 
-                        all_samples.append(x_samples_ddim)
+                        for x_sample in x_samples_ddim:
+                            x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
+                            Image.fromarray(x_sample.astype(np.uint8)).save(
+                                os.path.join(outpath,f"{unique_id}-{base_count:05}.png"))
+                            base_count += 1
+
+                        #all_samples.append(x_samples_ddim)
                     
                     # save as grid
-                    grid = torch.stack(all_samples,0)
-                    grid = rearrange(grid, 'n b c h w -> (n b) c h w')
-                    grid = make_grid(grid, nrow=n_rows)
+                    #grid = torch.stack(all_samples,0)
+                    #grid = rearrange(grid, 'n b c h w -> (n b) c h w')
+                    #grid = make_grid(grid, nrow=n_rows)
 
                     # to image
-                    grid = 255. * rearrange(grid, 'c h w -> h w c').cpu().numpy()
-                    Image.fromarray(grid.astype(np.uint8)).save(os.path.join(outpath, f'grid-{grid_count:04}.png'))
-                    grid_count += 1
+                    #grid = 255. * rearrange(grid, 'c h w -> h w c').cpu().numpy()
+                    #Image.fromarray(grid.astype(np.uint8)).save(os.path.join(outpath, f'grid-{grid_count:04}.png'))
+                    #grid_count += 1
 
                 toc = time.time()
 
-    retval = ""          
+    retval = []          
     grid_count -=1
-    with open(os.path.join(outpath, f'grid-{grid_count:04}.png'), "rb") as image_file:
-        retval = base64.b64encode(image_file.read())
+    for i in range(base_count-1,-1,-1):
+        img_path = os.path.join(outpath,f"{unique_id}-{i:05}.png")
+        with open(img_path, "rb") as image_file:
+            print("encoding image")
+            #retval.append(base64.b64encode(image_file.read()))
+            base64_image = base64.b64encode(image_file.read())
+            retval.append(base64_image)
     
-    return {"predictions" : [retval]}
+    return {"predictions" : retval}
