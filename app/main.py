@@ -109,7 +109,7 @@ async def predict(request: Request):
                             prompts = list(prompts)
                         c = model.get_learned_conditioning(prompts)
                         shape = [4,512//8,512//8]
-                        samples_ddim, _ = sampler.sample(S=50,
+                        samples_ddim, _ = sampler.sample(S=20,
                                                         conditioning=c,
                                                         batch_size=n_samples,
                                                         shape=shape,

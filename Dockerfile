@@ -60,7 +60,7 @@ COPY app .
 COPY entrypoint.sh .
 
 #SHELL ["/bin/bash","-c"]
-EXPOSE 80
+EXPOSE 8080
 ENTRYPOINT ["./entrypoint.sh"]
 
 # ENTRYPOINT ["conda", "run", "-n", "ldm", \

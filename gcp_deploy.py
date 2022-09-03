@@ -79,7 +79,8 @@ def main():
     model = aiplatform.Model.upload(
     display_name=opt.model_name,
     serving_container_image_uri=opt.image_uri,
-    serving_container_ports=[80]
+    serving_container_ports=[8080],
+    serving_container_predict_route="/predict"
     )
     
     model = deploy_model_with_dedicated_resources_sample(model,
