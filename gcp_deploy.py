@@ -86,7 +86,7 @@ def main():
     model = deploy_model_with_dedicated_resources_sample(model,
                                                         "n1-standard-4",
                                                         traffic_percentage=100,
-                                                        accelerator_type='NVIDIA_TESLA_T4',
+                                                        accelerator_type='NVIDIA_TESLA_V100',
                                                         accelerator_count=1)
 
 

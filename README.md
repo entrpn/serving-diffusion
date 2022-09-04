@@ -10,8 +10,14 @@ This repo creates a serving container for stable diffusion.
 1. Build container
 
   ```bash
-  docker build . -t diffusion
+  docker build . -t gcr.io/{project_id}/stable-diffusion:latest
   ```
+1. Push the image
+
+    ```bash
+    docker push gcr.io/{project_id}/stable-diffusion:latest
+    ```
+
 1. Run container. Needs GPUs.
 
   ```bash

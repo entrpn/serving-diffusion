@@ -34,17 +34,6 @@ RUN mkdir models/ldm/stable-diffusion-v1
 RUN apt-get update && apt-get install -y curl 
 RUN curl https://www.googleapis.com/storage/v1/b/aai-blog-files/o/sd-v1-4.ckpt?alt=media > models/ldm/stable-diffusion-v1/model.ckpt
 
-
-
-
-# RUN . /root/.bashrc && \
-#     conda activate ldm && \
-#     git clone https://github.com/TencentARC/GFPGAN.git && \
-#     cd GFPGAN && pip install basicsr && pip install facexlib && \
-#     pip install -r requirements.txt && python setup.py develop && \
-#     pip install realesrgan
-# WORKDIR "/GFPGAN"
-
 RUN apt update && apt install -y libsm6 libxext6
 RUN apt-get install -y libxrender-dev
 
@@ -59,9 +48,5 @@ RUN ["./load_weights.sh"]
 COPY app .
 COPY entrypoint.sh .
 
-#SHELL ["/bin/bash","-c"]
 EXPOSE 8080
 ENTRYPOINT ["./entrypoint.sh"]
-
-# ENTRYPOINT ["conda", "run", "-n", "ldm", \
-#             "python", "scripts/txt2img.py", "--prompt", "\"55mm closeup hand photo of a breathtaking majestic beautiful armored redhead woman mage holding a tiny ball of fire in her hand on a snowy night in the village. zoom on the hand. focus on hand. dof. bokeh. art by greg rutkowski and luis royo. ultra reallistic. extremely detailed. nikon d850. cinematic postprocessing.\"","--plms"]

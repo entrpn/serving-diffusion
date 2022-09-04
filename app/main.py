@@ -62,11 +62,6 @@ outdir = "/outputs/txt2img-samples"
 os.makedirs(outdir, exist_ok=True)
 outpath = outdir
 
-n_samples = 1
-batch_size = n_samples
-n_rows = batch_size
-n_iter = 4
-
 app = FastAPI()
 
 logging.info(f"AIP_PREDICT_ROUTE: {os.environ['AIP_PREDICT_ROUTE']}")
@@ -93,6 +88,11 @@ async def predict(request: Request):
 
     instances = body["instances"]
     config =  body["parameters"]
+    logger.info(f"config : {config}")
+
+    n_samples = config.get('n_samples', 2)
+    batch_size = n_samples
+    n_iter = config.get('n_iter',2)
 
     prompt = instances[0]["prompt"]
     data = [batch_size * [prompt]]
@@ -100,13 +100,11 @@ async def predict(request: Request):
     sample_path = os.path.join(outpath, "samples")
     os.makedirs(sample_path, exist_ok=True)
     base_count = 0
-    grid_count = len(os.listdir(outpath)) -1
 
     unique_id = str(uuid.uuid4())[:8]
 
     start_code = torch.randn([3, 4, 512 // 8, 512 // 8], device=device)
     precision_scope = autocast
-    all_samples = list()
     with torch.no_grad():
         with precision_scope("cuda"):
             with model.ema_scope():
@@ -118,7 +116,7 @@ async def predict(request: Request):
                             prompts = list(prompts)
                         c = model.get_learned_conditioning(prompts)
                         shape = [4,512//8,512//8]
-                        samples_ddim, _ = sampler.sample(S=config.get('ddmin_steps',30),
+                        samples_ddim, _ = sampler.sample(S=config.get('ddmin_steps',50),
                                                         conditioning=c,
                                                         batch_size=n_samples,
                                                         shape=shape,
@@ -137,27 +135,13 @@ async def predict(request: Request):
                                 os.path.join(outpath,f"{unique_id}-{base_count:05}.png"))
                             base_count += 1
 
-                        #all_samples.append(x_samples_ddim)
-                    
-                    # save as grid
-                    #grid = torch.stack(all_samples,0)
-                    #grid = rearrange(grid, 'n b c h w -> (n b) c h w')
-                    #grid = make_grid(grid, nrow=n_rows)
-
-                    # to image
-                    #grid = 255. * rearrange(grid, 'c h w -> h w c').cpu().numpy()
-                    #Image.fromarray(grid.astype(np.uint8)).save(os.path.join(outpath, f'grid-{grid_count:04}.png'))
-                    #grid_count += 1
-
                 toc = time.time()
 
     retval = []          
-    grid_count -=1
     for i in range(base_count-1,-1,-1):
         img_path = os.path.join(outpath,f"{unique_id}-{i:05}.png")
         with open(img_path, "rb") as image_file:
             print("encoding image")
-            #retval.append(base64.b64encode(image_file.read()))
             base64_image = base64.b64encode(image_file.read())
             retval.append(base64_image)
     
