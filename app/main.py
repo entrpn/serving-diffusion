@@ -49,6 +49,7 @@ def load_model_from_config(config, ckpt, verbose=False):
     return model
 
 DEFAULT_DDIM_STEPS = 50
+DEFAULT_SEED = 42
 # eta=0.0 corresponds to deterministic sampling
 DEFAULT_DDIM_ETA = 0.0
 DEFAULT_N_ITER = 2
@@ -105,6 +106,9 @@ async def predict(request: Request):
     instances = body["instances"]
     config =  body["parameters"]
     logger.debug(f"config : {config}")
+
+    seed = config.get('seed',DEFAULT_SEED)
+    seed_everything(seed)
 
     n_samples = config.get('n_samples', DEFAULT_N_SAMPLES)
     batch_size = n_samples
