@@ -48,6 +48,22 @@ def load_model_from_config(config, ckpt, verbose=False):
     model.eval()
     return model
 
+DEFAULT_DDIM_STEPS = 50
+# eta=0.0 corresponds to deterministic sampling
+DEFAULT_DDIM_ETA = 0.0
+DEFAULT_N_ITER = 2
+DEFAULT_H = 512
+DEFAULT_W = 512
+# latent channels
+DEFAULT_C = 4
+# Downsampling factor
+DEFAULT_F=8
+DEFAULT_N_SAMPLES=3
+DEFAULT_SCALE=7.5
+DEFAULT_PRECISION='autocast'
+
+
+
 seed_everything(42)
 
 config = OmegaConf.load("configs/stable-diffusion/v1-inference.yaml")
@@ -88,11 +104,20 @@ async def predict(request: Request):
 
     instances = body["instances"]
     config =  body["parameters"]
-    logger.info(f"config : {config}")
+    logger.debug(f"config : {config}")
 
-    n_samples = config.get('n_samples', 2)
+    n_samples = config.get('n_samples', DEFAULT_N_SAMPLES)
     batch_size = n_samples
-    n_iter = config.get('n_iter',2)
+    n_iter = config.get('n_iter', DEFAULT_N_ITER)
+
+    ddim_steps = config.get('ddim_steps',DEFAULT_DDIM_STEPS)
+    scale = config.get('scale',DEFAULT_SCALE)
+    ddim_eta = config.get('ddim_eta',DEFAULT_DDIM_ETA)
+
+    C = config.get('C',DEFAULT_C)
+    H = config.get('H',DEFAULT_H)
+    W = config.get('W',DEFAULT_W)
+    f = config.get('f',DEFAULT_F)
 
     prompt = instances[0]["prompt"]
     data = [batch_size * [prompt]]
@@ -103,7 +128,8 @@ async def predict(request: Request):
 
     unique_id = str(uuid.uuid4())[:8]
 
-    start_code = torch.randn([3, 4, 512 // 8, 512 // 8], device=device)
+    #start_code = torch.randn([n_samples, 4, 512 // 8, 512 // 8], device=device)
+    start_code = None
     precision_scope = autocast
     with torch.no_grad():
         with precision_scope("cuda"):
@@ -115,15 +141,15 @@ async def predict(request: Request):
                         if isinstance(prompts,tuple):
                             prompts = list(prompts)
                         c = model.get_learned_conditioning(prompts)
-                        shape = [4,512//8,512//8]
-                        samples_ddim, _ = sampler.sample(S=config.get('ddmin_steps',50),
+                        shape = [C, H // f, W // f]
+                        samples_ddim, _ = sampler.sample(S=ddim_steps,
                                                         conditioning=c,
                                                         batch_size=n_samples,
                                                         shape=shape,
                                                         verbose=False,
-                                                        unconditional_guidance_scale=config.get('scale',7.5),
+                                                        unconditional_guidance_scale=scale,
                                                         unconditional_conditioning=uc,
-                                                        eta=0,
+                                                        eta=ddim_eta,
                                                         x_t=start_code
                                                         )
                         x_samples_ddim = model.decode_first_stage(samples_ddim)
