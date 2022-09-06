@@ -1,1 +1,11 @@
-{"instances" : [{"prompt" : "a dog wearing a dress"}], "parameters" : {"scale" : 7.5}}
+{"instances" : [
+            {"prompt" : "a dog dressed like Harry Potter", "image" : "base64encodedimage","image_mask" : "base64encodedimagemask"}
+        ],
+        "parameters" : {
+            "ddim_steps" : 50,
+            "scale" : 7.5,
+            "type" : "txt2img",
+            "n_inter" : 2,
+            "n_samples" : 2
+        }
+}

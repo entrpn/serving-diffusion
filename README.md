@@ -21,7 +21,7 @@ This repo creates a serving container for stable diffusion.
 1. Run container. Needs GPUs.
 
   ```bash
-  docker run -p 80:8080 --gpus all -e AIP_HEALTH_ROUTE=/health -e AIP_HTTP_PORT=8080 -e AIP_PREDICT_ROUTE=/predict diffusion -d
+  docker run -p 80:8080 --gpus all -e AIP_HEALTH_ROUTE=/health -e AIP_HTTP_PORT=8080 -e AIP_PREDICT_ROUTE=/predict gcr.io/{project_id}/stable-diffusion:latest -d
   ```
 
 1. Make a prediction
