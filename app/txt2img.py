@@ -28,6 +28,7 @@ def txt2img(model, sampler, prompt, config, outpath):
     DEFAULT_N_SAMPLES=3
     DEFAULT_SCALE=7.5
 
+    # TODO - still unsure how this works with multiple requests. Are they queued up, or is seed_everthing called while one request is doing inference? This is related that I'm using async def for the route.
     seed = config.get('seed', DEFAULT_SEED)
     seed_everything(seed)
 
