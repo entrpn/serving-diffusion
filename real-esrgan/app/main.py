@@ -29,9 +29,9 @@ async def predict(request: Request):
             {"image" : "base64encodedimage"}
         ],
         "parameters" : {
-            "face-enhance" : true,
+            "face_enhance" : true,
             "tile" : 0,
-            "tile-pad" : 10,
+            "tile_pad" : 10,
             "prepad" : 0,
             "fp32" : true,
             "outscale" : 4
@@ -44,7 +44,7 @@ async def predict(request: Request):
     config =  body["parameters"]
     logger.debug(f"config : {config}")
 
-    retval, error = inference_realesrgan(instances['image'], config)
+    retval, error = inference_realesrgan(instances[0]['image'], config)
     
     if error:
         retval = ''

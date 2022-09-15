@@ -1,3 +1,4 @@
+#!/bin/bash
 export PORT=$AIP_HTTP_PORT
 echo $PORT
 # For debugging

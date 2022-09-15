@@ -15,6 +15,9 @@ RUN apt-get update && apt-get -y upgrade \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+#cv2 dependencies
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+
 
 RUN git clone https://github.com/xinntao/Real-ESRGAN.git
 WORKDIR "/Real-ESRGAN"
@@ -24,10 +27,13 @@ RUN wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.
 RUN pip install basicsr facexlib gfpgan
 
 RUN pip install -r requirements.txt
-RUN pip install uvicorn fastapi
+RUN python3 setup.py develop
+RUN pip install uvicorn fastapi opencv-python
 
 COPY app .
 COPY entrypoint.sh .
+COPY load_weights.py .
+RUN python3 load_weights.py
 
 EXPOSE 8080
 ENTRYPOINT ["./entrypoint.sh"]

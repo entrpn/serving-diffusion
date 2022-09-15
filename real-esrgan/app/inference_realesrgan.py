@@ -12,6 +12,10 @@ from realesrgan import RealESRGANer
 from realesrgan.archs.srvgg_arch import SRVGGNetCompact
 from gfpgan import GFPGANer
 
+import logging
+logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
+
 
 DEFAULT_TILE = 0
 DEFAULT_TILE_PAD = 10
@@ -58,10 +62,6 @@ def inference_realesrgan(img, config):
     img = base64.b64decode(img); 
     npimg = np.fromstring(img, dtype=np.uint8); 
     img = cv2.imdecode(npimg, 1) # 1 corresponds to RGB
-    if len(img.shape) == 3 and img.shape[2] == 4:
-        img_mode = 'RGBA'
-    else:
-        img_mode = None
     retval = None
     error = False
     try:
@@ -74,15 +74,12 @@ def inference_realesrgan(img, config):
         print('If you encountered CUDA out of memory, try to set --tile with a smaller number')
         error = True
     else:
-        img = Image.fromarray(output.astyle(np.uint8))
+        # cv2 uses BRG while PIL uses RGB
+        img = Image.fromarray(output[:,:,:3][:,:,::-1])
         buff = BytesIO()
         img.save(buff, format='PNG')
         retval = base64.b64encode(buff.getvalue())
     
     return retval, error
-    # pil_img = Image.fromarray(img)
-    # buff = BytesIO()
-    # pil_img.save(buff, format="JPEG")
-    # new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
     
     

@@ -1,0 +1,11 @@
+{"instances" : [
+            {"prompt" : "a dog dressed like Harry Potter"}
+        ],
+        "parameters" : {
+            "ddim_steps" : 30,
+            "scale" : 7.5,
+            "type" : "txt2img",
+            "n_inter" : 2,
+            "n_samples" : 2
+        }
+}
