@@ -89,28 +89,30 @@ async def predict(request: Request):
     body = await request.json()
 
     instances = body["instances"]
-    config =  body["parameters"]
-    logger.debug(f"config : {config}")
-
-    infer_type = config.get('type',"txt2img")
     
-    prompt = instances[0]["prompt"]
-    if infer_type == 'txt2img':
-        sampler = PLMSSampler(model)
-        retval = txt2img(model=model,
-                        sampler=sampler,
-                        prompt=prompt,
-                        config=config,
-                        outpath=txt2img_outdir)
+    retval = []
 
-    elif infer_type == 'img2img':
-        image = instances[0]["image"]
-        sampler = DDIMSampler(model)
-        retval = img2img(model=model,
-                        sampler=sampler,
-                        image=image,
-                        prompt=prompt,
-                        config=config,
-                        outpath=img2img_outdir)
+    for instance in instances:
+        prompt = instance["prompt"]
+        config = instance["parameters"]
+        infer_type = config.get('type',"txt2img")
+        images = []
+        if infer_type == 'txt2img':
+            sampler = PLMSSampler(model)
+            images = txt2img(model=model,
+                            sampler=sampler,
+                            prompt=prompt,
+                            config=config,
+                            outpath=txt2img_outdir)
 
+        elif infer_type == 'img2img':
+            image = instances[0]["image"]
+            sampler = DDIMSampler(model)
+            images = img2img(model=model,
+                            sampler=sampler,
+                            image=image,
+                            prompt=prompt,
+                            config=config,
+                            outpath=img2img_outdir)
+        retval.append({"prompt" : prompt, "images" : images})
     return {"predictions" : retval}

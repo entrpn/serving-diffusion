@@ -53,7 +53,9 @@ def main(opt):
         accelerator_type=opt.gpu_type,
         accelerator_count=opt.accelerator_count,
         sync=True,
-        deploy_request_timeout=300.0
+        autoscaling_target_cpu_utilization=opt.cpu_duty_cycle,
+        autoscaling_target_accelerator_duty_cycle=opt.accelerator_duty_cycle
+        
     )
 
     print("done")
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--machine-type',
         type=str,
-        default='n1-standard-8',
+        default='n1-standard-4',
         help='Machine type'
     )
     parser.add_argument(
@@ -120,6 +122,18 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="name of image in gcr. Ex: gcr.io/project-name/stable-diffusion:latest"
+    )
+    parser.add_argument(
+        "--accelerator-duty-cycle",
+        type=int,
+        default=20,
+        help="Autoscaling for GPUs. 0 forces the endpoint to autoscale immediately if --min-replica-count > 1"
+    )
+    parser.add_argument(
+        "--cpu-duty-cycle",
+        type=int,
+        default=5,
+        help="Autoscaling for CPUs. 0 forces the endpoint to autoscale immediately if --min-replica-count > 1"
     )
 
     opt = parser.parse_args()
