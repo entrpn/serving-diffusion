@@ -3,6 +3,7 @@
 This repo creates a serving containers with all model weights for the following:
 - Stable diffusion : txt2img, im2img - [README](./stable-diffusion/README.md)
 - RealESRGAN : upscaling, face enhancement - [README](./real-esrgan/README.md)
+- Codeformer : upscaling, face enhancement - [README](./codeformer/README.md)
 
 Web framework is [fastapi](https://fastapi.tiangolo.com/). 
 
