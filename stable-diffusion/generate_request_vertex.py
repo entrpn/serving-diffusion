@@ -28,9 +28,8 @@ def main(opt):
     endpoint = aiplatform.Endpoint(opt.endpoint_name)
     results = endpoint.raw_predict(body=instances, headers={'Content-Type':'application/json'})
     print(results)
-    app_json = json.dumps(results.text)
     with open("response.json", "w") as text_file:
-        text_file.write(app_json)
+        text_file.write(results.text)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

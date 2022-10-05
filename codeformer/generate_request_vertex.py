@@ -17,10 +17,10 @@ def main(opt):
                     "parameters" : {
                         "w" : 0.7,
                         "upscale" : 2,
-                        "has_aligned" : True,
+                        "has_aligned" : False,
                         "only_center_face" : False,
                         "draw_box" : False,
-                        "bg_upsample" : False,
+                        "bg_upsample" : "realesrgan",
                         "face_upsample" : False,
                         "bg_tile" : 400
                     }
@@ -32,9 +32,8 @@ def main(opt):
     endpoint = aiplatform.Endpoint(opt.endpoint_name)
     results = endpoint.raw_predict(body=instances, headers={'Content-Type':'application/json'})
     print(results)
-    app_json = json.dumps(results.text)
     with open("response.json", "w") as text_file:
-        text_file.write(app_json)
+        text_file.write(results.text)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
