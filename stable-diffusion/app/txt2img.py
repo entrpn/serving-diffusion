@@ -13,7 +13,7 @@ from torch import autocast
 from pytorch_lightning import seed_everything
 
 
-def txt2img(model, sampler, prompt, config, outpath):
+def txt2img(model, sampler, prompt, config, outpath, uc=[""]):
     DEFAULT_DDIM_STEPS = 50
     DEFAULT_SEED = 42
     # eta=0.0 corresponds to deterministic sampling
@@ -60,7 +60,7 @@ def txt2img(model, sampler, prompt, config, outpath):
             with model.ema_scope():
                 for _ in trange(n_iter, desc="Sampling"):
                     for prompts in tqdm(data, desc="data"):
-                        uc = model.get_learned_conditioning(batch_size * [""])
+                        uc = model.get_learned_conditioning(batch_size * uc)
                         if isinstance(prompts, tuple):
                             prompts = list(prompts)
                         c = model.get_learned_conditioning(prompts)
