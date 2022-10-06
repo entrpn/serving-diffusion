@@ -1,6 +1,12 @@
 # serving stable-diffusion
 ![](../images/ddlm_2.png)
 
+## Features
+
+- Text to image
+- Image to image
+- Nagative prompting
+
 ## Setup
 
 1. Clone repo if you haven't. Navigate to the `stable-diffusion` folder.
@@ -13,7 +19,7 @@
 1. Run container. You need [NVIDIA docker](https://github.com/NVIDIA/nvidia-docker) and a GPU.
 
     ```bash
-    docker run -p 80:8080 --gpus all -e AIP_HEALTH_ROUTE=/health -e AIP_HTTP_PORT=8080 -e AIP_PREDICT_ROUTE=/predict gcr.io/{project_id}/stable-diffusion:latest -d
+    docker run --rm -p 80:8080 --gpus all -e AIP_HEALTH_ROUTE=/health -e AIP_HTTP_PORT=8080 -e AIP_PREDICT_ROUTE=/predict gcr.io/{project_id}/stable-diffusion:latest -d
     ```
 
 1. Make a prediction

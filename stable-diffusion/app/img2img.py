@@ -27,7 +27,7 @@ def load_img(base64_image_str):
     image = torch.from_numpy(image)
     return 2.*image - 1.
 
-def img2img(model, sampler, image, prompt, config, outpath, uc=[""]):
+def img2img(model, sampler, image, prompt, config, outpath, negative_prompt=[""]):
     DEFAULT_DDIM_STEPS = 50
     DEFAULT_SEED = 42
     # eta=0.0 corresponds to deterministic sampling
@@ -76,7 +76,7 @@ def img2img(model, sampler, image, prompt, config, outpath, uc=[""]):
                 for prompts in tqdm(data, desc="data"):
                     uc = None
                     if scale != 1.0:
-                            uc = model.get_learned_conditioning(batch_size * uc)
+                            uc = model.get_learned_conditioning(batch_size * negative_prompt)
                     if isinstance(prompts, tuple):
                             prompts = list(prompts)
                     c = model.get_learned_conditioning(prompts)
