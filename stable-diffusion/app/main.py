@@ -77,7 +77,7 @@ async def predict(request: Request):
     Request: 
     {
         "instances" : [
-            {"prompt" : "a dog wearing a dress", "image" : "base64encodedimage"}
+            {"prompt" : "a dog wearing a dress", "image" : "base64encodedimage", "uc" : ["fog, grainy, purple"]}
         ],
         "parameters" : {
             "ddim_steps" : 50,
@@ -94,6 +94,7 @@ async def predict(request: Request):
 
     for instance in instances:
         prompt = instance["prompt"]
+        negative_prompt = instance.get("negative_prompt",[""])
         config = instance["parameters"]
         infer_type = config.get('type',"txt2img")
         images = []
@@ -103,7 +104,8 @@ async def predict(request: Request):
                             sampler=sampler,
                             prompt=prompt,
                             config=config,
-                            outpath=txt2img_outdir)
+                            outpath=txt2img_outdir,
+                            negative_prompt=negative_prompt)
 
         elif infer_type == 'img2img':
             image = instances[0]["image"]
@@ -113,6 +115,7 @@ async def predict(request: Request):
                             image=image,
                             prompt=prompt,
                             config=config,
-                            outpath=img2img_outdir)
+                            outpath=img2img_outdir,
+                            negative_prompt=negative_prompt)
         retval.append({"prompt" : prompt, "images" : images})
     return {"predictions" : retval}

@@ -6,20 +6,21 @@ with open('../images/ddlm_2.png', "rb") as image_file:
 
 appDict = {
     "instances": [
-        # {
-        #     "prompt" : "A woman dressed like the Mexican Holiday Dia de los Muertos", 
-        #     "image" : ddlm_image.decode("utf-8"),
-        #     "parameters": {
-        #         "ddim_steps" : 50,
-        #         "scale" : 7.5,
-        #         "n_samples" : 2,
-        #         "n_itter" : 2,
-        #         "strength" : .55,
-        #         "type" : "img2img"
-        #     }
-        # },
         {
-            "prompt" : "An apocalyptic alien city ravaged by time, highly detailed, cinematic, intricate, trending in artstation",
+            "prompt" : "A woman dressed like the Going to Hawaii", 
+            "image" : ddlm_image.decode("utf-8"),
+            "parameters": {
+                "ddim_steps" : 50,
+                "scale" : 7.5,
+                "n_samples" : 2,
+                "n_itter" : 2,
+                "strength" : .55,
+                "type" : "img2img"
+            }
+        },
+        {
+            "prompt" : "a colorful photo of a castle in the middle of a forest with trees and (((bushes))), by Ismail Inceoglu, ((((shadows)))), ((((high contrast)))), dynamic shading, ((hdr)), detailed vegetation, digital painting, digital drawing, detailed painting, a detailed digital painting, gothic art, featured on deviantart",
+            "negative_prompt" : ["grainy, foggy, purple"],
             "parameters": {
                 "ddim_steps" : 30,
                 "scale" : 7.5,
