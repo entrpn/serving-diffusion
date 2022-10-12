@@ -1,5 +1,9 @@
 # serving stable-diffusion
+## This repo has been moved is no longer supported. Please go to https://github.com/entrpn/serving-model-cards/tree/main/stable-diffusion for newer features such as word emphasis.
+
 ![](../images/ddlm_2.png)
+
+
 
 ## Features
 
