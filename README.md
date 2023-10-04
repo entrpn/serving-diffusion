@@ -1,3 +1,7 @@
+# Deprecated
+
+Please use https://github.com/entrpn/serving-model-cards/tree/main/serving-stable-diffusion
+
 # serving-diffusion
 
 This repo creates a serving containers with all model weights for the following:
